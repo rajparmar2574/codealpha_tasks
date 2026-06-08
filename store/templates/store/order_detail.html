@@ -1,0 +1,101 @@
+{% extends 'store/base.html' %}
+{% block title %}Order #{{ order.id }} — LuxeCart{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="container" style="max-width:800px;">
+    <div class="breadcrumb">
+      <a href="{% url 'order_history' %}">My Orders</a> / <span>Order #{{ order.id|stringformat:"06d" }}</span>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h1 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;">Order Details</h1>
+        <div style="color:var(--text2);font-size:0.85rem;">Placed on {{ order.created_at|date:"d M Y, H:i" }}</div>
+      </div>
+      <span style="padding:0.5rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;
+        {% if order.status == 'delivered' %}background:rgba(78,203,113,0.15);color:#4ecb71;
+        {% elif order.status == 'cancelled' %}background:rgba(255,92,92,0.15);color:#ff5c5c;
+        {% elif order.status == 'shipped' %}background:rgba(96,165,250,0.15);color:#60a5fa;
+        {% else %}background:rgba(232,201,122,0.15);color:#e8c97a;{% endif %}">
+        {{ order.status_icon }} {{ order.get_status_display }}
+      </span>
+    </div>
+
+    <!-- Order Progress -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:1.5rem;">
+      <div class="order-steps" style="max-width:600px;margin:0 auto;">
+        {% with status=order.status %}
+        <div class="step {% if status in 'pending,processing,shipped,delivered' %}active{% endif %}">
+          <div class="step-circle">📝</div>
+          <div class="step-label">Ordered</div>
+        </div>
+        <div class="step {% if status in 'processing,shipped,delivered' %}active{% endif %}">
+          <div class="step-circle">⚙️</div>
+          <div class="step-label">Processing</div>
+        </div>
+        <div class="step {% if status in 'shipped,delivered' %}active{% endif %}">
+          <div class="step-circle">🚚</div>
+          <div class="step-label">Shipped</div>
+        </div>
+        <div class="step {% if status == 'delivered' %}active{% endif %}">
+          <div class="step-circle">📦</div>
+          <div class="step-label">Delivered</div>
+        </div>
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.5rem;overflow:hidden;">
+      <div style="padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);font-weight:600;">🛍️ Ordered Items</div>
+      {% for item in order.items.all %}
+      <div style="display:flex;align-items:center;gap:1rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);">
+        {% if item.product.display_image %}
+        <img src="{{ item.product.display_image }}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;">
+        {% else %}
+        <div style="width:60px;height:60px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;">🛍️</div>
+        {% endif %}
+        <div style="flex:1;">
+          <a href="{% url 'product_detail' item.product.slug %}" style="font-weight:600;color:var(--text);">{{ item.product.name }}</a>
+          <div style="font-size:0.85rem;color:var(--text2);">₹{{ item.price }} × {{ item.quantity }}</div>
+        </div>
+        <div style="font-weight:700;">₹{{ item.subtotal }}</div>
+      </div>
+      {% endfor %}
+      <div style="padding:1.2rem 1.5rem;text-align:right;font-size:1rem;font-weight:700;">
+        Total: <span style="color:var(--accent);">₹{{ order.total_price }}</span>
+      </div>
+    </div>
+
+    <!-- Shipping Info -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;">
+        <div style="font-weight:600;color:var(--accent);margin-bottom:1rem;">📍 Shipping Address</div>
+        <div style="color:var(--text2);font-size:0.9rem;line-height:1.8;">
+          <strong style="color:var(--text);">{{ order.shipping_name }}</strong><br>
+          {{ order.shipping_address }}<br>
+          {{ order.shipping_city }}, {{ order.shipping_state }}<br>
+          PIN: {{ order.shipping_zip }}<br>
+          📞 {{ order.shipping_phone }}
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;">
+        <div style="font-weight:600;color:var(--accent);margin-bottom:1rem;">💰 Payment Info</div>
+        <div style="color:var(--text2);font-size:0.9rem;line-height:1.8;">
+          <div><strong style="color:var(--text);">Method:</strong> {{ order.payment_method|upper }}</div>
+          <div><strong style="color:var(--text);">Amount:</strong> ₹{{ order.total_price }}</div>
+          <div><strong style="color:var(--text);">Status:</strong>
+            <span style="color:var(--success);">✅ Confirmed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+      <a href="{% url 'order_history' %}" class="btn btn-outline">← All Orders</a>
+      <a href="{% url 'product_list' %}" class="btn btn-primary">🛍️ Shop Again</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

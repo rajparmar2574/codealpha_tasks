@@ -1,0 +1,99 @@
+{% extends 'store/base.html' %}
+{% block title %}Products — LuxeCart{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="container">
+    <h1 class="section-title">🛍️ All Products</h1>
+    <p class="section-sub">Step 2: Browse and discover our full collection</p>
+
+    <!-- Search + Filter Bar -->
+    <div class="filter-bar">
+      <form method="get" action="{% url 'product_list' %}" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;width:100%;">
+        <div class="search-bar" style="flex:1;min-width:200px;max-width:400px;">
+          <input type="text" name="q" placeholder="Search products..." value="{{ search_query }}">
+          <button type="submit">🔍</button>
+        </div>
+        <select name="category" class="filter-select" onchange="this.form.submit()">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+          <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="sort" class="filter-select" onchange="this.form.submit()">
+          <option value="">Sort By</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- Category Chips -->
+    <div class="categories-grid">
+      <a href="{% url 'product_list' %}" class="cat-chip {% if not selected_category %}active{% endif %}">🌟 All</a>
+      {% for cat in categories %}
+      <a href="{% url 'product_list' %}?category={{ cat.slug }}" class="cat-chip {% if selected_category == cat.slug %}active{% endif %}">{{ cat.icon }} {{ cat.name }}</a>
+      {% endfor %}
+    </div>
+
+    <!-- Results Count -->
+    <p style="color:var(--text2);font-size:0.85rem;margin-bottom:1.5rem;">
+      Showing <strong style="color:var(--text);">{{ products|length }}</strong> products
+      {% if search_query %}for "<strong style="color:var(--accent);">{{ search_query }}</strong>"{% endif %}
+    </p>
+
+    <!-- Product Grid -->
+    {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+      <div class="product-card">
+        {% if product.discount_percent %}<div class="product-badge">-{{ product.discount_percent }}%</div>{% endif %}
+        <a href="{% url 'product_detail' product.slug %}">
+          <div class="product-img-wrap">
+            {% if product.display_image %}
+            <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text2);">🛍️</div>
+            {% endif %}
+          </div>
+        </a>
+        <div class="product-info">
+          {% if product.category %}<div class="product-category">{{ product.category.name }}</div>{% endif %}
+          <a href="{% url 'product_detail' product.slug %}"><div class="product-name">{{ product.name }}</div></a>
+          <div class="product-rating">
+            <span class="stars">★★★★{% if product.rating >= 5 %}★{% else %}☆{% endif %}</span>
+            {{ product.rating }}
+          </div>
+          <div class="product-price-row">
+            <div>
+              <span class="product-price">₹{{ product.price }}</span>
+              {% if product.original_price %}<span class="product-original">₹{{ product.original_price }}</span>{% endif %}
+            </div>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_to_cart' product.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="product-add-btn" title="Add to cart">+</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}?next={% url 'product_list' %}" class="product-add-btn" style="display:flex;align-items:center;justify-content:center;text-decoration:none;">+</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🔍</div>
+      <h3>No products found</h3>
+      <p>Try a different search or browse all products</p>
+      <br>
+      <a href="{% url 'product_list' %}" class="btn btn-primary">Browse All →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

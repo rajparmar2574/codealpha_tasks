@@ -1,0 +1,105 @@
+{% extends 'store/base.html' %}
+{% block title %}Shopping Cart — LuxeCart{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="container">
+    <h1 class="section-title">🛒 Shopping Cart</h1>
+    <p class="section-sub">Step 3: Review your items before checkout</p>
+
+    {% if items %}
+    <div class="cart-grid">
+      <!-- Cart Items -->
+      <div class="cart-items">
+        <div class="cart-header">
+          🛍️ {{ items|length }} item{% if items|length != 1 %}s{% endif %} in your cart
+        </div>
+
+        {% for item in items %}
+        <div class="cart-item" id="cart-row-{{ item.id }}">
+          <!-- Image -->
+          {% if item.product.display_image %}
+          <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}" class="cart-item-img">
+          {% else %}
+          <div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>
+          {% endif %}
+
+          <!-- Info -->
+          <div>
+            <a href="{% url 'product_detail' item.product.slug %}">
+              <div class="cart-item-name">{{ item.product.name }}</div>
+            </a>
+            {% if item.product.category %}<div style="font-size:0.75rem;color:var(--accent);margin-bottom:0.3rem;">{{ item.product.category.name }}</div>{% endif %}
+            <div class="cart-item-price">₹{{ item.product.price }} each</div>
+            <div class="cart-item-qty">
+              <button class="cart-qty-btn cart-qty-update" data-item-id="{{ item.id }}" data-action="dec">−</button>
+              <span id="qty-{{ item.id }}" style="font-weight:600;min-width:24px;text-align:center;">{{ item.quantity }}</span>
+              <button class="cart-qty-btn cart-qty-update" data-item-id="{{ item.id }}" data-action="inc">+</button>
+              <span style="color:var(--text2);font-size:0.8rem;margin-left:0.5rem;">× ₹{{ item.product.price }}</span>
+            </div>
+          </div>
+
+          <!-- Subtotal + Remove -->
+          <div style="text-align:right;">
+            <div class="cart-item-subtotal" id="subtotal-{{ item.id }}">₹{{ item.subtotal }}</div>
+            <form method="post" action="{% url 'remove_from_cart' item.id %}" style="margin-top:0.7rem;">
+              {% csrf_token %}
+              <button type="submit" class="cart-item-remove cart-remove-btn" data-item-id="{{ item.id }}" title="Remove">🗑️</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="cart-summary">
+        <div class="summary-title">Order Summary</div>
+
+        <div class="summary-row">
+          <span>Subtotal ({{ items|length }} items)</span>
+          <span class="cart-total-display">₹{{ cart.total }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span style="color:var(--success);">{% if cart.total >= 999 %}FREE{% else %}₹99{% endif %}</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax (18% GST)</span>
+          <span>₹{{ cart.total|floatformat:0 }}</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span class="cart-total-display" style="color:var(--accent);">₹{{ cart.total }}</span>
+        </div>
+
+        {% if cart.total < 999 %}
+        <div style="background:rgba(232,201,122,0.08);border:1px solid rgba(232,201,122,0.2);border-radius:8px;padding:0.8rem;font-size:0.8rem;color:var(--accent);margin-bottom:1.5rem;">
+          🚚 Add ₹{{ 999|add:"-"|add:cart.total }} more for FREE shipping!
+        </div>
+        {% endif %}
+
+        <a href="{% url 'checkout' %}" class="btn btn-primary btn-full btn-lg">
+          Proceed to Checkout →
+        </a>
+        <a href="{% url 'product_list' %}" class="btn btn-outline btn-full" style="margin-top:0.8rem;">
+          ← Continue Shopping
+        </a>
+
+        <div style="text-align:center;margin-top:1.5rem;">
+          <small style="color:var(--text2);font-size:0.78rem;">🔒 Secure & Encrypted Checkout</small>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🛒</div>
+      <h3>Your cart is empty</h3>
+      <p>Add some products to get started!</p>
+      <br>
+      <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">Browse Products →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

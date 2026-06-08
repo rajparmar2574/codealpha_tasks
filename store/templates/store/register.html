@@ -1,0 +1,54 @@
+{% extends 'store/base.html' %}
+{% block title %}Create Account — LuxeCart{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo">✦ LuxeCart</div>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-sub">Step 1: Join thousands of happy shoppers</p>
+
+    <form method="post" action="{% url 'register' %}" novalidate>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-input" placeholder="first-name" value="{{ form_data.first_name|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-input" placeholder="last-name" value="{{ form_data.last_name|default:'' }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" id="id_username" class="form-input" placeholder="username" value="{{ form_data.username|default:'' }}" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-input" placeholder="email@example.com" value="{{ form_data.email|default:'' }}" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" id="id_password" class="form-input" placeholder="Min. 6 characters" required autocomplete="new-password">
+        <small style="font-size:0.78rem;color:var(--text2);margin-top:0.3rem;display:block;">
+          Strength: <span id="pwd-strength" style="font-weight:600;"></span>
+        </small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" name="password2" class="form-input" placeholder="Repeat password" required autocomplete="new-password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:0.5rem;">
+        Create My Account →
+      </button>
+    </form>
+
+    <div class="divider"><span>or</span></div>
+    <div class="auth-switch">
+      Already have an account? <a href="{% url 'login' %}">Sign in here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

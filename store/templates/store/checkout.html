@@ -1,0 +1,138 @@
+{% extends 'store/base.html' %}
+{% block title %}Checkout — LuxeCart{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="container">
+    <h1 class="section-title">💳 Checkout</h1>
+    <p class="section-sub">Step 4: Complete your order</p>
+
+    <form method="post" action="{% url 'place_order' %}">
+      {% csrf_token %}
+      <div class="checkout-grid">
+
+        <!-- Left: Form -->
+        <div>
+          <!-- Shipping Info -->
+          <div class="checkout-form-box" style="margin-bottom:1.5rem;">
+            <div class="checkout-section-title">📦 Shipping Information</div>
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-input" required
+                placeholder="John Doe"
+                value="{{ user.get_full_name|default:user.username }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" name="phone" class="form-input" required placeholder="+91 98765 43210">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Delivery Address</label>
+              <textarea name="address" class="form-input" rows="2" required placeholder="Street address, apartment, etc." style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" name="city" class="form-input" required placeholder="Mumbai">
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" name="state" class="form-input" required placeholder="Maharashtra">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PIN Code</label>
+              <input type="text" name="zip_code" class="form-input" required placeholder="400001" maxlength="10">
+            </div>
+          </div>
+
+          <!-- Payment -->
+          <div class="checkout-form-box">
+            <div class="checkout-section-title">💰 Payment Method</div>
+            <div class="payment-options">
+              <label class="payment-option selected">
+                <input type="radio" name="payment_method" value="cod" checked>
+                <div class="payment-option-icon">💵</div>
+                <div class="payment-option-text">
+                  <strong>Cash on Delivery</strong>
+                  <span>Pay when your order arrives</span>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="upi">
+                <div class="payment-option-icon">📱</div>
+                <div class="payment-option-text">
+                  <strong>UPI / PhonePe / GPay</strong>
+                  <span>Instant payment via UPI</span>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="card">
+                <div class="payment-option-icon">💳</div>
+                <div class="payment-option-text">
+                  <strong>Credit / Debit Card</strong>
+                  <span>Visa, Mastercard, RuPay</span>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment_method" value="netbanking">
+                <div class="payment-option-icon">🏦</div>
+                <div class="payment-option-text">
+                  <strong>Net Banking</strong>
+                  <span>All major banks supported</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div>
+          <div class="cart-summary" style="position:sticky;top:90px;">
+            <div class="summary-title">Order Summary</div>
+
+            {% for item in items %}
+            <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
+              {% if item.product.display_image %}
+              <img src="{{ item.product.display_image }}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;">
+              {% else %}
+              <div style="width:50px;height:50px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;">🛍️</div>
+              {% endif %}
+              <div style="flex:1;">
+                <div style="font-size:0.85rem;font-weight:600;">{{ item.product.name }}</div>
+                <div style="font-size:0.75rem;color:var(--text2);">Qty: {{ item.quantity }}</div>
+              </div>
+              <div style="font-weight:600;font-size:0.9rem;">₹{{ item.subtotal }}</div>
+            </div>
+            {% endfor %}
+
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span>₹{{ cart.total }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Shipping</span>
+              <span style="color:var(--success);">{% if cart.total >= 999 %}FREE{% else %}₹99{% endif %}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total Payable</span>
+              <span style="color:var(--accent);">₹{{ cart.total }}</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:1rem;">
+              🎉 Place Order
+            </button>
+
+            <div style="text-align:center;margin-top:1rem;">
+              <small style="color:var(--text2);font-size:0.75rem;">
+                🔒 By placing order, you agree to our Terms &amp; Privacy Policy
+              </small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

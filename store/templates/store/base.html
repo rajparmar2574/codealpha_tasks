@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}LuxeCart — Premium Shopping{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="{% url 'home' %}" class="nav-brand">✦ LuxeCart</a>
+
+  <ul class="nav-links">
+    <li><a href="{% url 'home' %}">Home</a></li>
+    <li><a href="{% url 'product_list' %}">Products</a></li>
+    {% if user.is_authenticated %}
+    <li><a href="{% url 'order_history' %}">My Orders</a></li>
+    {% endif %}
+  </ul>
+
+  <div class="nav-actions">
+    {% if user.is_authenticated %}
+      <a href="{% url 'cart' %}" class="btn-cart">
+        🛒 Cart
+        <span class="cart-badge">{{ cart_count }}</span>
+      </a>
+      <span class="nav-user">Hi, <span>{{ user.first_name|default:user.username }}</span></span>
+      <a href="{% url 'logout' %}" class="btn-outline btn btn-sm">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="btn-outline btn btn-sm">Login</a>
+      <a href="{% url 'register' %}" class="btn-nav-auth">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="messages-list" style="max-width:700px;margin:1rem auto;">
+  {% for msg in messages %}
+  <div class="message {{ msg.tags }}">
+    {% if msg.tags == 'success' %}✅{% elif msg.tags == 'error' %}❌{% elif msg.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+    {{ msg }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- CONTENT -->
+{% block content %}{% endblock %}
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">✦ LuxeCart</div>
+        <p class="footer-desc">Premium products, curated for those who appreciate quality. Shop the latest trends with confidence.</p>
+      </div>
+      <div>
+        <div class="footer-title">Shop</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'product_list' %}">All Products</a></li>
+          <li><a href="{% url 'product_list' %}?category=electronics">Electronics</a></li>
+          <li><a href="{% url 'product_list' %}?category=fashion">Fashion</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Account</div>
+        <ul class="footer-links">
+          {% if user.is_authenticated %}
+          <li><a href="{% url 'order_history' %}">My Orders</a></li>
+          <li><a href="{% url 'cart' %}">Cart</a></li>
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+          {% else %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+          <li><a href="{% url 'register' %}">Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Returns</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2024 LuxeCart. Built with Django + ❤️</p>
+      <p class="footer-copy">🔒 Secure Payments · 🚚 Fast Delivery · ↩️ Easy Returns</p>
+    </div>
+  </div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="{% static 'store/js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
